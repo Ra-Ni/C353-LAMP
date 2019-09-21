@@ -19,10 +19,10 @@ begin
 
     set var1 = concat(l_name, m_name, f_name);
 
-    if (var1 is null) or (var1 = '')
+    if var1 is null or var1 = ''
     then
         set msg = 'First, Middle, and Last names are empty.';
-    elseif uID < 1 or pass < 1
+    elseif uID < 0 or pass < 0
     then
         set msg = 'User ID or Password is a negative value.';
     end if;
