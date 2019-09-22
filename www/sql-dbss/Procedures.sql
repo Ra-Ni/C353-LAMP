@@ -1,144 +1,132 @@
 use qrc353_2;
 
-drop procedure if exists AccountRegister;
-drop procedure if exists EventCreate;
-drop procedure if exists EventJoin;
+drop procedure
+    if exists register_account;
+drop procedure
+    if exists create_event;
+drop procedure
+    if exists join_event;
 
 
-create procedure AccountRegister(l_name varchar(20),
-                                 f_name varchar(20),
-                                 m_name varchar(20),
-                                 uID int,
-                                 pass int)
+create procedure register_account(last_name varchar(20),
+                                  first_name varchar(20),
+                                  middle_name varchar(20),
+                                  user_id int,
+                                  user_password int)
 begin
-    declare msg varchar(255);
-    declare var1 varchar(255);
-    declare exit handler for 1062
-        select 'User ID ', uID, ' is not available.' as message;
+    declare full_name varchar(60);
+    declare exit handler
+        for 1062
+        call signal_error(1);
 
+    set full_name = concat(last_name, middle_name, first_name);
 
-    set var1 = concat(l_name, m_name, f_name);
-
-    if var1 is null or var1 = ''
+    if full_name is null
+        or full_name = ''
     then
-        set msg = 'First, Middle, and Last names are empty.';
-    elseif uID < 0 or pass < 0
+        call signal_error(100);
+
+    elseif user_id < 0
+        or user_password < 0
     then
-        set msg = 'User ID or Password is a negative value.';
+        call signal_error(3);
+
+    else
+        insert into account
+        values (last_name, first_name, middle_name, user_id, user_password);
     end if;
-
-    if msg is not null
-    then
-        signal sqlstate '45000'
-            set message_text = msg;
-    end if;
-
-    insert into Account
-    values (l_name, f_name, m_name, uID, pass);
 end;
 
 
-create procedure EventCreate(name varchar(20),
-                             eID int,
-                             s_date varchar(10),
-                             e_date varchar(10),
-                             uID int)
+create procedure create_event(name varchar(20),
+                              event_id int,
+                              start_date varchar(10),
+                              end_date varchar(10),
+                              user_id int)
 begin
-
-    declare var1 bool;
-    declare msg varchar(255);
-    declare dat1,dat2 date;
+    declare a_start_date,
+        a_end_date,
+        empty_date date;
     declare exit handler for 1062
-        select 'Event ID ', eID, ' is not available.' as message;
+        call signal_error(101);
+    declare exit handler for 1141
+        call signal_error(104);
 
-    set var1 = exists
-        (
-            select Account.userID
-            from Account
-            where Account.userID = uID
-        );
-
-    if not var1
+    if @date_template is null
     then
-        set msg = concat('User ID ', uID, ' does not exist.');
+        set @date_template = '%Y-%m-%d';
+        set @empty_date = str_to_date('', @date_template);
+        set @maximum_date = str_to_date('9999-12-31',@date_template);
+    end if;
+
+    set a_start_date = str_to_date(start_date, @date_template);
+    set a_end_date = str_to_date(end_date, @date_template);
+
+    if not exists
+        (
+            select _user_id
+            from account
+            where _user_id = user_id
+        )
+    then
+        call signal_error(2);
+
     elseif name = ''
     then
-        set msg = 'Event name is empty.';
-    elseif s_date is null
-        or s_date = ''
-        or not regexp_like(s_date, '[0-9]{4}-[0-9]{2}-[0-9]{2}')
+        call signal_error(103);
+
+    elseif a_start_date is null
+        or a_start_date = empty_date
+        or day(a_start_date) = '0'
+        or month(a_start_date) = '0'
     then
-        set msg = 'Event start date format not YYYY-MM-DD.';
-    elseif length(e_date) > 1 and
-           not regexp_like(e_date, '[0-9]{4}-[0-9]{2}-[0-9]{2}')
-    then
-        set msg = 'Event end date format not YYYY-MM-DD.';
+        call signal_error(104);
     end if;
 
-    if msg is not null then
-        signal sqlstate '45000' set message_text = msg;
-    end if;
-
-    if e_date = '' or e_date is null
+    if a_end_date is null
+        or a_end_date = empty_date
     then
-        set e_date = '9999-12-31';
+        set a_end_date = @maximum_date;
     end if;
 
+    insert into event
+    values (name, event_id, a_start_date, a_end_date, user_id);
 
-    set dat1 = str_to_date(s_date, '%Y-%m-%d');
-    set dat2 = str_to_date(e_date, '%Y-%m-%d');
-
-    insert into Event
-    values (name, eID, dat1, dat2, uID);
-
-    insert into Role
-    values (uID, eID);
+    insert into role
+    values (user_id, event_id);
 end;
 
-create procedure EventJoin(uID int, eID int)
+create procedure join_event(user_id int, event_id int)
 begin
-    declare var1,var2,var3 int;
-    declare msg varchar(255);
-
-    set var1 = exists
+    if not exists
         (
-            select Account.userID
-            from Account
-            where Account.userID = uID
-        );
+            select _user_id
+            from account
+            where _user_id = user_id
+        )
+    then
+        call signal_error(2);
 
-    set var2 = exists
+    elseif not exists
         (
-            select Event.EventID
-            from Event
-            where Event.EventID = eID
-        );
+            select _event_id
+            from event
+            where _event_id = event_id
+        )
+    then
+        call signal_error(102);
 
-    set var3 = exists
+    elseif exists
         (
-            select Role.userID
-            from Role
-            where Role.userID = uID
-              and Role.eventID = eID
-        );
-
-    if not var1
+            select _user_id
+            from role
+            where _user_id = user_id
+              and _event_id = event_id
+        )
     then
-        set msg = concat('User ID ', uID, ' does not exist.');
-    elseif not var2
-    then
-        set msg = concat('Event ID ', eID, ' does not exist');
-    elseif var3
-    then
-        set msg = concat('User ID ', uID, ' is already a participant of event ID ', eID);
+        call signal_error(4);
     end if;
 
-    if msg is not null
-    then
-        signal sqlstate '45000' set message_text = msg;
-    else
-        insert into Role
-        values (uID, eID);
-    end if;
+    insert into role
+    values (user_id, event_id);
 end;
-
