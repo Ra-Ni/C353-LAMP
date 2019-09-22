@@ -31,9 +31,9 @@ if (isset($_POST["submit"])) {
     Command: <input type="text" name="input"/><br>
     Print: <select name="print">
         <option value="None">None</option>
-        <option value="Account">Account</option>
-        <option value="Event">Event</option>
-        <option value="Role">Role</option>
+        <option value="account">Account</option>
+        <option value="event">Event</option>
+        <option value="role">Role</option>
     </select><br>
     <input type="submit" name="submit" value="Run"/><br>
     <?php
