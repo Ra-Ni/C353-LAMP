@@ -1,28 +1,28 @@
 use qrc353_2;
 
-drop table if exists Account,Event,Role;
+drop table if exists account,event,role;
 
 
-create table Account
+create table account
 (
-    lastname   varchar(20),
-    firstname  varchar(20),
-    middlename varchar(20),
-    userID     int not null primary key,
-    password   int not null
+    _last_name     varchar(20),
+    _first_name    varchar(20),
+    _middle_name   varchar(20),
+    _user_id       int not null primary key,
+    _user_password int not null
 );
 
-create table Event
+create table event
 (
-    Event       varchar(20),
-    EventID     int  not null primary key,
-    start_date  date not null,
-    end_date    date,
-    AdminUserID int  not null
+    _name          varchar(20),
+    _event_id      int  not null primary key,
+    _start_date    date not null,
+    _end_date      date,
+    _admin_user_id int  not null
 );
 
-create table Role
+create table role
 (
-    userID  int not null,
-    eventID int not null
+    _user_id  int not null,
+    _event_id int not null
 );
