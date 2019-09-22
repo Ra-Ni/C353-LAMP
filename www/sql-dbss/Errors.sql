@@ -34,3 +34,5 @@ begin
     signal sqlstate '45000'
         set message_text = @error_message;
 end;
+
+alter table error add unique index (code);

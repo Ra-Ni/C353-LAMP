@@ -14,15 +14,14 @@ create procedure register_account(last_name varchar(20),
                                   user_id int,
                                   user_password int)
 begin
-    declare full_name varchar(60);
     declare exit handler
         for 1062
         call signal_error(1);
 
-    set full_name = concat(last_name, middle_name, first_name);
+    set @full_name = concat(last_name, middle_name, first_name);
 
-    if full_name is null
-        or full_name = ''
+    if @full_name is null
+        or @full_name = ''
     then
         call signal_error(100);
 
@@ -44,9 +43,6 @@ create procedure create_event(name varchar(20),
                               end_date varchar(10),
                               user_id int)
 begin
-    declare a_start_date,
-        a_end_date,
-        empty_date date;
     declare exit handler for 1062
         call signal_error(101);
     declare exit handler for 1141
@@ -59,8 +55,8 @@ begin
         set @maximum_date = str_to_date('9999-12-31',@date_template);
     end if;
 
-    set a_start_date = str_to_date(start_date, @date_template);
-    set a_end_date = str_to_date(end_date, @date_template);
+    set @a_start_date = str_to_date(start_date, @date_template);
+    set @a_end_date = str_to_date(end_date, @date_template);
 
     if not exists
         (
@@ -75,22 +71,22 @@ begin
     then
         call signal_error(103);
 
-    elseif a_start_date is null
-        or a_start_date = empty_date
-        or day(a_start_date) = '0'
-        or month(a_start_date) = '0'
+    elseif @a_start_date is null
+        or @a_start_date = @empty_date
+        or day(@a_start_date) = '0'
+        or month(@a_start_date) = '0'
     then
         call signal_error(104);
     end if;
 
-    if a_end_date is null
-        or a_end_date = empty_date
+    if @a_end_date is null
+        or @a_end_date = @empty_date
     then
-        set a_end_date = @maximum_date;
+        set @a_end_date = @maximum_date;
     end if;
 
     insert into event
-    values (name, event_id, a_start_date, a_end_date, user_id);
+    values (name, event_id, @a_start_date, @a_end_date, user_id);
 
     insert into role
     values (user_id, event_id);
