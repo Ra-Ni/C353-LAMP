@@ -26,3 +26,9 @@ create table role
     _user_id  int not null,
     _event_id int not null
 );
+
+alter table account add unique index (_user_id);
+alter table event add unique index (_event_id);
+alter table role add unique index(_user_id,_event_id);
+
+set global ndb_cache_check_time = 1000;
