@@ -100,33 +100,35 @@ begin
     declare var1,var2,var3 int;
     declare msg varchar(255);
 
-    set var1 =
-            (
-                select count(*)
-                from Account
-                where Account.userID = uID
-            );
+    set var1 = exists
+        (
+            select Account.userID
+            from Account
+            where Account.userID = uID
+        );
 
-    set var2 = (
-        select count(*)
-        from Event
-        where Event.EventID = eID
-    );
+    set var2 = exists
+        (
+            select Event.EventID
+            from Event
+            where Event.EventID = eID
+        );
 
-    set var3 = (
-        select count(*)
-        from Role
-        where Role.userID = uID
-          and Role.eventID = eID
-    );
+    set var3 = exists
+        (
+            select Role.userID
+            from Role
+            where Role.userID = uID
+              and Role.eventID = eID
+        );
 
-    if var1 = 0
+    if not var1
     then
         set msg = concat('User ID ', uID, ' does not exist.');
-    elseif var2 = 0
+    elseif not var2
     then
         set msg = concat('Event ID ', eID, ' does not exist');
-    elseif var3 = 1
+    elseif var3
     then
         set msg = concat('User ID ', uID, ' is already a participant of event ID ', eID);
     end if;
@@ -134,9 +136,9 @@ begin
     if msg is not null
     then
         signal sqlstate '45000' set message_text = msg;
+    else
+        insert into Role
+        values (uID, eID);
     end if;
-
-    insert into Role
-    values (userID, eventID);
 end;
 
