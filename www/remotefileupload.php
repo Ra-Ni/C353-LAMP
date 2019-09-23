@@ -1,4 +1,8 @@
 <?php
+/*
+ * THIS FILE IS TO BE PLACED IN /www/groups/q/qr_comp353_2/remotefileupload.php
+ * AND WILL NOT WORK FOR LOCAL TESTING BECAUSE OF CREDENTIAL REQUIREMENTS
+*/
 
 $message = "";
 if (isset($_POST["submit"])) {
