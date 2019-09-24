@@ -11,15 +11,15 @@
 
 2. Login to the server
 
-Note: the username is qrc353_2 and password is btPhhy
+   The username is qrc353_2 and password is btPhhy
 
 3. Attach a local copy of a csv file onto the form
 
 4. Click on the Upload button
 
-QR_353_2's ENCS Server will partition the csv file using strict formatting requirements and re-populate the database as well the procedures. 
+    QR_353_2's ENCS Server will partition the csv file using strict formatting requirements and re-populate the database as well the procedures. 
 
-A message will be displayed thereafter with a summary of the commands that were issued, and those that resulted in an error.
+    A message will be displayed thereafter with a summary of the commands that were issued, and those that resulted in an error.
 
 ##Notes
 
