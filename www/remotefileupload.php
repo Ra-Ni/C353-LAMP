@@ -5,20 +5,38 @@
 */
 
 $message = "";
+$directory="sql-scripts/";
+$hostname = "qrc353.encs.concordia.ca";
+$user = "qrc353_2";
+$password = "btPhhy";
+$database = "qrc353_2";
+
+function populate_SQL(&$session,$sql_file) {
+    global $directory;
+    mysqli_multi_query($session,file_get_contents($directory.$sql_file)) or die(mysqli_error($session));
+    while(mysqli_more_results($session)) {
+        mysqli_next_result($session);
+        mysqli_use_result($session);
+    }
+}
+
+
 if (isset($_POST["submit"])) {
-    $HOSTNAME = "qrc353.encs.concordia.ca";
-    $USER = "qrc353_2";
-    $PASSWORD = "btPhhy";
-    $DATABASE = "qrc353_2";
 
     //connect to the session or exit.
-    $session = mysqli_connect($HOSTNAME, $USER, $PASSWORD, $DATABASE) or die("Cannot connect to server");
+    $session = mysqli_connect($hostname, $user, $password, $database) or die("Error: Cannot connect to Concordia's QR_C353_2 server.");
+
+    //(re)-populating the sql database, error states, and procedures
+    populate_SQL($session,"Database.sql");
+    populate_SQL($session,"Procedures.sql");
+    populate_SQL($session,"Errors.sql");
+    $message.="Finished populating database, procedures, and errors"."<br>";
 
     //get the contents of temporary file stored on server after uploading as utf-8 format
-    $result = utf8_decode(file_get_contents($_FILES["file"]["tmp_name"])) or die("Error");
+    $result = utf8_decode(file_get_contents($_FILES["file"]["tmp_name"])) or die("Error: File not uploaded properly.");
 
     //split the file into an array of sections (each section has a different command)
-    $sections = preg_split("/\+-+\+(\r\n|\n|\r)/", $result) or die("Error");
+    $sections = preg_split("/\+-+\+(\r\n|\n|\r)/", $result);
 
     //delete the first and last extra indices created by splitting.
     array_shift($sections);
@@ -43,8 +61,8 @@ if (isset($_POST["submit"])) {
                 $command = "join_event";
                 break;
             default:
-                mysqli_close($session);
-                die("Error");
+                $message.="Error: Invalid command ".$command." detected. Skipping it."."<br><br><br><br>";
+                continue;
         }
 
 
