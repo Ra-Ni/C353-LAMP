@@ -1,7 +1,7 @@
 <?php
 /*
- * THIS FILE IS TO BE PLACED IN /www/groups/q/qr_comp353_2/remotefileupload.php
- * AND WILL NOT WORK FOR LOCAL TESTING BECAUSE OF CREDENTIAL REQUIREMENTS
+ * THIS FILE IS TO BE PLACED IN /nfs/www/groups/q/qr_comp353_2/upload.php
+ * AND WILL NOT WORK ON LOCAL SERVER WHILE TESTING BECAUSE OF CREDENTIAL REQUIREMENTS FROM MYSQL
 */
 
 $message = "";
@@ -10,6 +10,7 @@ $hostname = "qrc353.encs.concordia.ca";
 $user = "qrc353_2";
 $password = "btPhhy";
 $database = "qrc353_2";
+
 
 function populate_SQL(&$session,$sql_file) {
     global $directory;
@@ -100,9 +101,9 @@ if (isset($_POST["submit"])) {
             }
 
             $query = implode(",", $query_array);
-            $response_message = "";
             $action = "call " . $command . "(" . $query . ")";
             $message .= $action . "====";
+            $response_message="";
             mysqli_query($session, $action) or $response_message = mysqli_error($session);
             if (empty($response_message)) {
                 $response_message = "OK.";
@@ -118,15 +119,30 @@ if (isset($_POST["submit"])) {
 ?>
 
 <html>
+<head>
+    <title>QR-2 COMP-353 Server</title>
+</head>
 <body>
+<div class="container">
 <form action="" method="post" enctype="multipart/form-data">
-    <input type="file" name="file"/>
-    <input type="submit" name="submit" value="Upload"/><br>
+
+    <p>
+        <label for="file">File:</label>
+        <input type="file" name="file"/>
+    </p>
+
+    <p>
+        <label for="submit"></label>
+        <input type="submit" name="submit" value="Upload"/>
+    </p>
+
     <?php
+
     if (isset($message)) {
         echo $message;
     }
     ?>
 </form>
+</div>
 </body>
 </html>
