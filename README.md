@@ -17,7 +17,7 @@
 
 4. Click on the Upload button
 
-    QR_353_2's ENCS Server will partition the csv file using strict formatting requirements and re-populate the database as well the procedures. 
+    QR_353_2's ENCS Server will parse the csv file using strict formatting requirements and re-populate the database as well the procedures. 
 
     A message will be displayed thereafter with a summary of the commands that were issued, and those that resulted in an error.
 
