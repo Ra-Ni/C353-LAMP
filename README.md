@@ -1,11 +1,11 @@
-#COMP-353 LAMP Project
+# COMP-353 LAMP Project
 
-##Requirements
+## Requirements
 
 - Web Browser (Firefox, Microsoft Edge, Safari, ...)
 - A csv file similar to "db19s-P1.csv"
 
-##Usage
+## Usage
 
 1. Connect to [QR_353_2's ENCS Server](https://qrc353.encs.concordia.ca/upload.php) using a web browser
 
@@ -21,7 +21,7 @@
 
     A message will be displayed thereafter with a summary of the commands that were issued, and those that resulted in an error.
 
-##Notes
+## Notes
 
 - The project has been tested and has been configured to function over the group account server. For local server testing, the source code in file upload.php needs to be changed.
 
