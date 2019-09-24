@@ -1,6 +1,7 @@
 use qrc353_2;
 
-drop table if exists account,event,role;
+
+drop table if exists event,role,account;
 
 
 create table account
@@ -18,13 +19,16 @@ create table event
     _event_id      int  not null primary key,
     _start_date    date not null,
     _end_date      date,
-    _admin_user_id int  not null
+    _admin_user_id int  not null,
+    foreign key (_admin_user_id) references account(_user_id)
 );
 
 create table role
 (
     _user_id  int not null,
-    _event_id int not null
+    _event_id int not null,
+    foreign key (_user_id) references account(_user_id),
+    foreign key (_event_id) references event(_event_id)
 );
 
 alter table account add unique index (_user_id);
