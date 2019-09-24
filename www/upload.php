@@ -69,7 +69,6 @@ if (isset($_POST["submit"])) {
 
         foreach ($relation_array as &$query) {
             $query = preg_replace("/\|$/", "", $query);
-            //$query=preg_replace("/\|/",",",$query);
             $query_array = explode("|", $query);
 
             //apply proper format based on command
