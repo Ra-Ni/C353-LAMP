@@ -6,6 +6,10 @@ drop procedure
     if exists create_event;
 drop procedure
     if exists join_event;
+drop procedure
+    if exists fetch_admin_names;
+drop procedure
+    if exists fetch_names_in_event;
 
 
 create procedure register_account(last_name varchar(20),
@@ -125,4 +129,38 @@ begin
 
     insert into role
     values (user_id, event_id);
+end;
+
+create procedure fetch_admin_names()
+begin
+    select account._first_name,
+           account._middle_name,
+           account._last_name
+    from account
+    inner join event
+        on account._user_id = event._admin_user_id
+    order by _first_name,_middle_name,_last_name;
+end;
+
+create procedure fetch_names_in_event(event_id int)
+begin
+    if not exists(
+        select _event_id
+        from event
+        where _event_id = event_id
+        )
+    then
+        call signal_error(102);
+    end if;
+
+    select account._first_name,
+           account._middle_name,
+           account._last_name
+    from event
+    inner join role
+        on role._event_id = event._event_id
+    inner join account
+        on role._user_id = account._user_id
+    where role._event_id = event_id
+    order by _first_name,_middle_name,_last_name;
 end;
